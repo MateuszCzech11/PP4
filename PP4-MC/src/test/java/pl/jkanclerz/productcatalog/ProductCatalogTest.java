@@ -99,10 +99,8 @@ public class ProductCatalogTest {
 
     }
 
-    private ProductCatalog thereIsProductCatalog() {
-        return new ProductCatalog(
-                new DbProductStorage()
-        );
+    private ProductCatalog thereIsProductCatalog(){
+        return null;
     }
 
     private void assertListIsEmpty(List<Product> products) {

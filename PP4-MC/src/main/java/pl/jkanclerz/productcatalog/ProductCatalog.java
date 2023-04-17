@@ -6,9 +6,9 @@ import java.util.*;
 public class ProductCatalog {
     // Business
     // Technical
-    private DbProductStorage productStorage;
+    private HashMapProductStorage productStorage;
 
-    public ProductCatalog(DbProductStorage productStorage) {
+    public ProductCatalog(HashMapProductStorage productStorage) {
         this.productStorage = productStorage;
     }
 
