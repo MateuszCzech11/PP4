@@ -9,6 +9,8 @@ import pl.jkanclerz.productcatalog.Product;
 import pl.jkanclerz.productcatalog.ProductCatalog;
 import pl.jkanclerz.productcatalog.ProductStorage;
 
+import java.math.BigDecimal;
+
 @SpringBootApplication
 public class Main {
     public static void main(String[] args) {
@@ -18,6 +20,16 @@ public class Main {
 
     @Bean
     ProductCatalog createMyProductCatalog(){
-        return new ProductCatalog(new HashMapProductStorage());
+        ProductCatalog productCatalog = new ProductCatalog(new HashMapProductStorage());
+        String product1 = productCatalog.addProduct("my ebook","niceone");
+        productCatalog.changePrice(product1, BigDecimal.valueOf(10.10));
+        productCatalog.assignImage(product1,"foo/niecei/image.jpg");
+        productCatalog.publishProduct(product1);
+
+        String product2 = productCatalog.addProduct("EBOOK2","niceone!!!");
+        productCatalog.changePrice(product2, BigDecimal.valueOf(13.10));
+        productCatalog.assignImage(product2,"foo/niec/dsdei/image.jpg");
+        productCatalog.publishProduct(product2);
+        return productCatalog;
     }
 }

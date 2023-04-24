@@ -25,33 +25,19 @@ public class Product {
         return UUID.fromString(uuid);
     }
 
-    public String getName() {
-        return name;
-    }
+    public String getDesc() { return desc; }
 
-    public void changePrice(BigDecimal newPrice) {
-        price = newPrice;
-    }
+    public String getName() { return name; }
 
-    public BigDecimal getPrice() {
-        return price;
-    }
+    public void changePrice(BigDecimal newPrice) { price = newPrice; }
 
-    public String getImage() {
-        return image;
-    }
+    public BigDecimal getPrice() { return price; }
 
-    public void setImage(String imageKey) {
+    public String getImage() { return image; }
 
-        image = imageKey;
-    }
+    public void setImage(String imageKey) { image = imageKey; }
 
-    public void setOnline(boolean online) {
+    public void setOnline(boolean online) { this.online = online; }
 
-        this.online = online;
-    }
-
-    public boolean getOnline() {
-        return online;
-    }
+    public boolean getOnline() { return online; }
 }
