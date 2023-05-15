@@ -5,6 +5,10 @@ import java.util.ServiceLoader;
 
 public class Sales {
 
+    public Sales(){
+
+    }
+
     private CartStorage cartStorage;
 
     private productDetailsProvider productDetailsProvider;
@@ -18,11 +22,14 @@ public class Sales {
     }
 
     private Optional<Product> loadDetailsForProduct(String productId) {
-        return productDetailsProvider.load(productId);
+        //return productDetailsProvider.load(productId);
+        return null;
     }
 
     private Optional<Cart> loadForCustomer(String customerId) {
-        return cartStorage.load(customerId);
+        //return cartStorage.load(customerId);
+        return null;
+
     }
 
     public String thereIsCustomer(String customerId){
@@ -31,5 +38,8 @@ public class Sales {
 
     private Sales thereIsSalesModule(){
         return new Sales();
+    }
+
+    public void getCurrentOffer() {
     }
 }

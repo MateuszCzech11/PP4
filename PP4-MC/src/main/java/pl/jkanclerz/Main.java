@@ -8,6 +8,8 @@ import pl.jkanclerz.productcatalog.HashMapProductStorage;
 import pl.jkanclerz.productcatalog.Product;
 import pl.jkanclerz.productcatalog.ProductCatalog;
 import pl.jkanclerz.productcatalog.ProductStorage;
+import pl.jkanclerz.sales.CartStorage;
+import pl.jkanclerz.sales.Sales;
 
 import java.math.BigDecimal;
 
@@ -31,5 +33,10 @@ public class Main {
         productCatalog.assignImage(product2,"foo/niec/dsdei/image.jpg");
         productCatalog.publishProduct(product2);
         return productCatalog;
+    }
+
+    @Bean
+    Sales createSales(){
+        return new Sales(new CartStorage(),new ProductDetailsProvider());
     }
 }

@@ -1,29 +1,37 @@
 package pl.jkanclerz.sales;
 
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
 
 public class CollectingProductsTest {
     @Test
-    void itAllowsToAddProductToCart(){
-        //arrange
-        Sales sales=thereIsSalesModule();
-        String customerId=thereIsCustomer("Kuba");
-        String productId=thereIsProduct();
-        //act
-        sales.addToCart(customerId,productId);
+    void itAllowsToAddProduct() {
+        //ARRANGE
+        Sales sales = thereIsSalesModule();
+        String product1 = thereIsProduct();
+        String customerId = thereIsCustomer("Kuba");
 
-        //assert
-        assertCustomerCartContainsNProducts(customerId,1);
+        //Act
+        sales.addToCart(customerId, product1);
 
-    }
-    @BeforeEach
-    void setup(){
-
+        //Assert
+        assertThereIsXProductsInCustomerCart(1, customerId);
     }
 
-    private void assertCustomerCartContainsNProducts(String customerId,int productsCount){
+    private void assertThereIsXProductsInCustomerCart(int totalProductsQuantity, String customerId) {
 
+    }
+
+    private String thereIsCustomer(String id) {
+        return id;
+    }
+
+    private String thereIsProduct() {
+        return UUID.randomUUID().toString();
+    }
+
+    private Sales thereIsSalesModule() {
+        return new Sales();
     }
 }
