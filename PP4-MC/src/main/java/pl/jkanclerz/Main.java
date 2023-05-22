@@ -35,8 +35,8 @@ public class Main {
         return productCatalog;
     }
 
-    @Bean
-    Sales createSales(){
-        return new Sales(new CartStorage(),new ProductDetailsProvider());
-    }
+//    @Bean
+//    Sales createSales(){
+//        return new Sales(new CartStorage(),new ProductDetailsProvider());
+//    }
 }
