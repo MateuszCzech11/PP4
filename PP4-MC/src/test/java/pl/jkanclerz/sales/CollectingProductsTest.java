@@ -1,30 +1,47 @@
 package pl.jkanclerz.sales;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import pl.jkanclerz.sales.cart.Cart;
+import pl.jkanclerz.sales.cart.CartStorage;
+import pl.jkanclerz.sales.product.AlwaysMissingProductDetailsProvider;
+import pl.jkanclerz.sales.product.ProductDetailsProvider;
 
 import java.util.UUID;
 
 public class CollectingProductsTest {
+
+    private CartStorage cartStorage;
+    private ProductDetailsProvider productDetailsProvider;
+
+    @BeforeEach
+    void setup() {
+        cartStorage = new CartStorage();
+        productDetailsProvider = new AlwaysMissingProductDetailsProvider();
+    }
+
     @Test
-    void itAllowsToAddProduct() {
-        //ARRANGE
+    void itAllowsToCollectProductsToCart() {
+        //Arrange
         Sales sales = thereIsSalesModule();
-        String product1 = thereIsProduct();
-        String customerId = thereIsCustomer("Kuba");
+        String productId =  thereIsProduct();
+        String customer = thereIsCustomer("Kuba");
 
         //Act
-        sales.addToCart(customerId, product1);
+        sales.addToCart(customer, productId);
 
         //Assert
-        assertThereIsXProductsInCustomerCart(1, customerId);
+        assertThereIsNProductsInCustomersCart(customer, 1);
     }
 
-    private void assertThereIsXProductsInCustomerCart(int totalProductsQuantity, String customerId) {
+    private void assertThereIsNProductsInCustomersCart(String customer, int productsCount) {
+        Cart customerCart = cartStorage.load(customer).get();
 
+        assert customerCart.itemsCount() == productsCount;
     }
 
-    private String thereIsCustomer(String id) {
-        return id;
+    private String thereIsCustomer(String customerId) {
+        return customerId;
     }
 
     private String thereIsProduct() {
@@ -32,6 +49,6 @@ public class CollectingProductsTest {
     }
 
     private Sales thereIsSalesModule() {
-        return new Sales();
+        return new Sales(cartStorage, productDetailsProvider);
     }
 }

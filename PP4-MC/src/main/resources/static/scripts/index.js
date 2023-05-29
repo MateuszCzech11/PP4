@@ -1,83 +1,105 @@
-const a =5;
-const foo=() =>{console.log("HELLO WORDL")};
+const a = 5;
+let b =5;
 
-(()=>{
-    foo();
-})();
+const myFunction = (foo) => {
+    console.log(foo);
+}
 
-document.addEventListener('DOMContentLoaded',()=> {
-    });
-
-
-//const resp = await fetch("/api/products");
-//productsjson=await resp.json();
-//console.log(productsjson);
-
-const getProducts=()=>{
+const getProducts = () => {
     return fetch("/api/products")
         .then(response => response.json());
 }
 
-const getCurrentOffer = async () => {
-    return fetch("/api/offer")
-        .then(response=>response.json());
+const addToCart = (productId) => {
+    return fetch(`/api/add-to-cart/${productId}`, {
+        method: "POST",
+        body: JSON.stringify({})
+    }).then(response => response.json());
 }
 
-const refreshOffer = async () => {
-    const offer = await getCurrentOffer();
-    const cart = document.querySelector('.cart');
+const createHtmlElementFromString = (template) => {
+    let tmpElement = document.createElement('div');
+    tmpElement.innerHTML = template.trim();
 
-    cart.querySelector('.total').textContent= `${offer.total} PLN`;
-    cart.querySelector('.itemsCount').textContent= `${offer.itemsCount} items`;
+    return tmpElement.firstChild;
 }
 
-const createHtmlFromString=(htmlAsString)=>{
-    const tmpElem = document.createElement('div');
-    tmpElem.innerHTML= htmlAsString.trim();
-    return tmpElem.firstChild;
-}
-
-const createHtmlComponent = (product) => {
+const createProductComponent = (product) => {
     const template = `
-        <li class ="product">
-            <h4>${product.name}</h4>
-            <img>
-            <span>${product.price}</span>
+        <li class="product">
+            <span>${product.name}</span>
+            <div>
+                <span>${product.price}</span>
+            </div>
             <button
                 class="product__add-to-cart"
                 data-product-id="${product.id}"
             >
-            Add to cart+
+                Add to cart
             </button>
         </li>
     `;
 
-    return createHtmlFromString(template);
+    return createHtmlElementFromString(template);
 }
 
-const addToCart= (productId) => {
-    return fetch(`/api/add-to-cart/${productId}`,
-        method="POST"
-    );
-};
+const getCurrentOffer = () => {
+    return fetch("/api/get-current-offer")
+        .then(response => response.json());
+}
+const refreshCurrentOffer = () => {
+    console.log('i am going to refresh offer');
+    const offerElement = document.querySelector('.cart');
 
-const initializeAddToCartHandler= (HtmlEl)=>{
-    const btn= htmlEl.querySelector('button.product__add-to-cart');
-    btn.addEventListener('click',()=>{
-        addToCart(btn.getAttribute('data-product-id'))
-            .then(refreshOffer());
-    });
-    return HtmlEl;
-};
-
-(async ()=>{
-    const productsListEl= document.querySelector('#products-list');
-    await refreshOffer();
-    const products = await getProducts();
-    getProducts()
-        products
-            .map(product => createHtmlComponent(product))
-            .map(productComponent => initializeAddToCartHandler(productComponent))
-            .forEach(el => productsListEl.appendChild(el));
+    getCurrentOffer()
+        .then(offer => {
+            offerElement.querySelector('.total').textContent = `${offer.total} PLN`;
+            offerElement.querySelector('.itemsCount').textContent = `${offer.itemsCount} items`;
         });
+}
+
+const initializeAddToCartHandler = (el) => {
+    const btn = el.querySelector('button.product__add-to-cart');
+    btn.addEventListener('click', () => {
+        addToCart(btn.getAttribute('data-product-id'))
+            .then(refreshCurrentOffer())
+    });
+
+    return el;
+}
+
+(async () => {
+    console.log("It works :)");
+    const productsList = document.querySelector('#productsList');
+
+    refreshCurrentOffer();
+
+    const products = await getProducts();
+
+    products
+        .map(p => createProductComponent(p))
+        .map(el => initializeAddToCartHandler(el))
+        .forEach(el => productsList.appendChild(el));
+
+    console.log("post get products");
 })();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

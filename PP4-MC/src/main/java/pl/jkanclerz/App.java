@@ -1,31 +1,64 @@
 package pl.jkanclerz;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import pl.jkanclerz.productcatalog.HashMapProductStorage;
+import pl.jkanclerz.productcatalog.Product;
+import pl.jkanclerz.productcatalog.ProductCatalog;
+import pl.jkanclerz.sales.*;
+import pl.jkanclerz.sales.cart.CartStorage;
+import pl.jkanclerz.sales.product.ProductCatalogProductDetailsProvider;
+import pl.jkanclerz.sales.product.ProductDetails;
 
+import java.math.BigDecimal;
+import java.util.Optional;
+
+@SpringBootApplication
 public class App {
     public static void main(String[] args) {
-        List<String> names = Arrays.asList("Jakub", "Michal",
-                "Agnieszka", "Ola", "Kasia");
-        Greeter greeter = new Greeter();
-        greeter.greet("Jakub"); // -> Hello Jakub
+        SpringApplication.run(App.class, args);
+    }
 
-        List<String> ladies = new ArrayList<String>();
-        for (String name : names) {
-            if (name.endsWith("a")) {
-                ladies.add(name);
-            }
-        }
-        for (String ladyName: ladies) {
-            greeter.greet(ladyName);
-        }
-        System.out.println("------------------------------------");
-        names.stream()
-                .filter(name -> name.endsWith("a")) // python way lambda name: name[-1] == "a"
-                .filter(name -> name.startsWith("A"))
-                .map(String::toUpperCase)
-                .forEach(greeter::greet);
+    @Bean
+    ProductCatalog createProductCatalog() {
+        ProductCatalog productCatalog = new ProductCatalog(new HashMapProductStorage());
 
+        String product1 = productCatalog.addProduct("My ebook", "nice one");
+        productCatalog.assignImage(product1, "images/ebook.jpeg");
+        productCatalog.changePrice(product1, BigDecimal.valueOf(20.20));
+        productCatalog.publishProduct(product1);
+
+        String product2 = productCatalog.addProduct("Other Ebook", "even nicer one");
+        productCatalog.assignImage(product2, "images/ebook.jpeg");
+        productCatalog.changePrice(product2, BigDecimal.valueOf(30.20));
+        productCatalog.publishProduct(product2);
+
+        return productCatalog;
+    }
+
+
+    Sales createSalesViaLambda(ProductCatalog catalog) {
+        return new Sales(
+                new CartStorage(),
+                (String productId) -> {
+                    Product product = catalog.loadById(productId);
+                    if (product == null) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(new ProductDetails(
+                            product.getId(),
+                            product.getName(),
+                            product.getPrice()));
+                }
+        );
+    }
+
+    @Bean
+    Sales createSalesViaObject(ProductCatalog catalog) {
+        return new Sales(
+                new CartStorage(),
+                new ProductCatalogProductDetailsProvider(catalog)
+        );
     }
 }

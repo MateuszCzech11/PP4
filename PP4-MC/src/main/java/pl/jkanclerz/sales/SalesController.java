@@ -4,19 +4,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+import pl.jkanclerz.sales.offering.Offer;
 
 @RestController
 public class SalesController {
     Sales sales;
 
-    public SalesController(Sales sales){
-        this.sales=sales;
+    public SalesController(Sales sales) {
+        this.sales = sales;
     }
 
-    @GetMapping("/api/offer")
-    public Offer getCurrentOffer(){
-        sales.getCurrentOffer();
-    return null;
+    @GetMapping("/api/get-current-offer")
+    public Offer getCurrentOffer() {
+        return sales.getCurrentOffer(getCurrentCustomer());
     }
 
     @PostMapping("/api/add-to-cart/{productId}")
@@ -24,8 +24,7 @@ public class SalesController {
         sales.addToCart(getCurrentCustomer(), productId);
     }
 
-    public String getCurrentCustomer(){
-        return "Kuba";
+    private String getCurrentCustomer() {
+        return "kuba";
     }
-
 }
