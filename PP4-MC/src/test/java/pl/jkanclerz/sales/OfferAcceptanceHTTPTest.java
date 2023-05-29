@@ -30,7 +30,8 @@ public class OfferAcceptanceHTTPTest {
 
         //Act
         AcceptOffer acceptOffer = new AcceptOffer("Jakub", "jakub@example.com");
-        ResponseEntity<PaymentData> response = http.postForEntity(String.format("/api/accept-offer"), acceptOffer, PaymentData.class);
+        ResponseEntity<PaymentData> response = http.postForEntity(
+                String.format("/api/accept-offer"), acceptOffer, PaymentData.class);
 
         //Assert
         assertEquals(response.getStatusCode(), HttpStatus.OK);

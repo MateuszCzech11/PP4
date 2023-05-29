@@ -40,6 +40,7 @@ public class Sales {
     }
 
     public Offer getCurrentOffer(String currentCustomer) {
+        offerCalculator.calculate(this.cartStorage.load(currentCustomer));
         return new Offer();
     }
 

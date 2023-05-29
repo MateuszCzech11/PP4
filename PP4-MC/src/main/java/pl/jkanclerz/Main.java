@@ -1,38 +1,59 @@
 package pl.jkanclerz;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import pl.jkanclerz.productcatalog.HashMapProductStorage;
+import pl.jkanclerz.productcatalog.Product;
+import pl.jkanclerz.productcatalog.ProductCatalog;
+import pl.jkanclerz.productcatalog.ProductStorage;
+import pl.jkanclerz.sales.CartStorage;
+import pl.jkanclerz.sales.Sales;
+import pl.jkanclerz.sales.product.ProductDetails;
+import pl.jkanclerz.sales.product.ProductDetailsProvider;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+
+@SpringBootApplication
 public class Main {
     public static void main(String[] args) {
-        List<String> names = Arrays.asList("Jakub", "Michal", "Kasia", "Maria");
 
-        Greeter greeter = new Greeter();
-        greeter.greet("Kuba"); // -> Helllo Kuba
-
-        List<String> ladies = new ArrayList<String>();
-        for (String name : names) {
-            if (name.endsWith("a")) {
-                ladies.add(name);
-            }
-        }
-
-        for (String ladyName: ladies) {
-            greeter.greet(ladyName);
-        }
-
-        names.stream()
-                .filter(name -> name.endsWith("a")) // lambda name: name[-1] == "a"
-                .filter(name -> name.startsWith("K"))
-                .map(String::toUpperCase)
-                .forEach(greeter::greet);
-
-
-
-
-        //Greet all ladies
-        // Hello Kasia
-        // Hello Maria
+        SpringApplication.run(Main.class, args);
     }
+
+    @Bean
+    ProductCatalog createMyProductCatalog(){
+        ProductCatalog productCatalog = new ProductCatalog(new HashMapProductStorage());
+        String product1 = productCatalog.addProduct("my ebook","niceone");
+        productCatalog.changePrice(product1, BigDecimal.valueOf(10.10));
+        productCatalog.assignImage(product1,"foo/niecei/image.jpg");
+        productCatalog.publishProduct(product1);
+
+        String product2 = productCatalog.addProduct("EBOOK2","niceone!!!");
+        productCatalog.changePrice(product2, BigDecimal.valueOf(13.10));
+        productCatalog.assignImage(product2,"foo/niec/dsdei/image.jpg");
+        productCatalog.publishProduct(product2);
+        return productCatalog;
+    }
+
+  @Bean
+  Sales createSalesViaLambda(ProductCatalog catalog){
+      return new Sales(
+              new CartStorage(),
+              (String productId)->{
+                  Product product = loadById(productId);
+                  if (product == null) {
+                      return Optional.empty();
+                  }
+                  return Optional.of(new ProductDetails(
+                          product.getId(),
+                          product.getName(),
+                          product.getPrice()
+                  ));
+              });
+  }
+
+
 }

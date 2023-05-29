@@ -8,7 +8,6 @@ public class ProductDetails {
     private final BigDecimal price;
 
     public ProductDetails(String id, String name, BigDecimal price) {
-
         this.id = id;
         this.name = name;
         this.price = price;
