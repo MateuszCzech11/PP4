@@ -1,18 +1,27 @@
 package pl.jkanclerz;
 
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
+import pl.jkanclerz.payu.PayU;
+import pl.jkanclerz.payu.PayUApiCredentials;
 import pl.jkanclerz.productcatalog.HashMapProductStorage;
-import pl.jkanclerz.productcatalog.Product;
 import pl.jkanclerz.productcatalog.ProductCatalog;
-import pl.jkanclerz.sales.*;
+import pl.jkanclerz.sales.Sales;
 import pl.jkanclerz.sales.cart.CartStorage;
-import pl.jkanclerz.sales.product.ProductCatalogProductDetailsProvider;
-import pl.jkanclerz.sales.product.ProductDetails;
+import pl.jkanclerz.sales.offering.OfferCalculator;
+import pl.jkanclerz.sales.payment.PaymentGateway;
+import pl.jkanclerz.sales.payment.PayuPaymentGateway;
+import pl.jkanclerz.sales.productdetails.InMemoryProductDetailsProvider;
+import pl.jkanclerz.sales.productdetails.ProductCatalogProductDetailsProvider;
+import pl.jkanclerz.sales.productdetails.ProductDetailsProvider;
+import pl.jkanclerz.sales.reservation.InMemoryReservationStorage;
+import pl.jkanclerz.web.SessionCurrentCustomerContext;
 
+import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
-import java.util.Optional;
 
 @SpringBootApplication
 public class App {
@@ -21,44 +30,50 @@ public class App {
     }
 
     @Bean
-    ProductCatalog createProductCatalog() {
+    ProductCatalog createNewProductCatalog() {
         ProductCatalog productCatalog = new ProductCatalog(new HashMapProductStorage());
 
-        String product1 = productCatalog.addProduct("My ebook", "nice one");
-        productCatalog.assignImage(product1, "images/ebook.jpeg");
-        productCatalog.changePrice(product1, BigDecimal.valueOf(20.20));
-        productCatalog.publishProduct(product1);
+        String productId1 = productCatalog.addProduct("Applying UML and Patterns", "Craig Larman");
+        productCatalog.assignImage(productId1, "/image/book_1.jpg");
+        productCatalog.changePrice(productId1, BigDecimal.TEN);
+        productCatalog.publishProduct(productId1);
 
-        String product2 = productCatalog.addProduct("Other Ebook", "even nicer one");
-        productCatalog.assignImage(product2, "images/ebook.jpeg");
-        productCatalog.changePrice(product2, BigDecimal.valueOf(30.20));
-        productCatalog.publishProduct(product2);
+        String productId2 = productCatalog.addProduct("Clean Code", "Robert Martin");
+        productCatalog.assignImage(productId2, "/image/book_2.jpg");
+        productCatalog.changePrice(productId2, BigDecimal.valueOf(20.20));
+        productCatalog.publishProduct(productId2);
+
+        String productId3 = productCatalog.addProduct("Domain-Driven Design", "Eric Evans");
+        productCatalog.assignImage(productId3, "/image/book_3.jpg");
+        productCatalog.changePrice(productId3, BigDecimal.valueOf(30.30));
+        productCatalog.publishProduct(productId3);
 
         return productCatalog;
     }
 
+    @Bean
+    PaymentGateway createPaymentGateway() {
+        return new PayuPaymentGateway(new PayU(PayUApiCredentials.sandbox(), new RestTemplate()));
+    }
 
-    Sales createSalesViaLambda(ProductCatalog catalog) {
+    @Bean
+    Sales createSales(ProductDetailsProvider productDetailsProvider, PaymentGateway paymentGateway) {
         return new Sales(
                 new CartStorage(),
-                (String productId) -> {
-                    Product product = catalog.loadById(productId);
-                    if (product == null) {
-                        return Optional.empty();
-                    }
-                    return Optional.of(new ProductDetails(
-                            product.getId(),
-                            product.getName(),
-                            product.getPrice()));
-                }
+                productDetailsProvider,
+                new OfferCalculator(productDetailsProvider),
+                paymentGateway,
+                new InMemoryReservationStorage()
         );
     }
 
     @Bean
-    Sales createSalesViaObject(ProductCatalog catalog) {
-        return new Sales(
-                new CartStorage(),
-                new ProductCatalogProductDetailsProvider(catalog)
-        );
+    SessionCurrentCustomerContext currentCustomerContext(HttpSession httpSession) {
+        return new SessionCurrentCustomerContext(httpSession);
+    }
+
+    @Bean
+    ProductDetailsProvider createProductDetailsProvider(ProductCatalog catalog) {
+        return new ProductCatalogProductDetailsProvider(catalog);
     }
 }
